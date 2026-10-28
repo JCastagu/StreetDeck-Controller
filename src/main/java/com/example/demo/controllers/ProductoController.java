@@ -22,10 +22,10 @@ public class ProductoController {
     // 1. GET con @RequestParam: Filtra por categoría de skate
     @Operation(
         summary = "Obtener productos por categoría", 
-        description = "Devuelve el catálogo de StreetDeck filtrado según la categoría de skate especificada[cite: 4]."
+        description = "Devuelve el catálogo de StreetDeck filtrado según la categoría de skate especificada."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Catálogo obtenido exitosamente[cite: 6]"),
+        @ApiResponse(responseCode = "200", description = "Catálogo obtenido exitosamente."),
         @ApiResponse(responseCode = "400", description = "Parámetro de categoría inválido")
     })
     @GetMapping
@@ -43,11 +43,11 @@ public class ProductoController {
     // 2. GET con @PathVariable y @RequestHeader: Busca producto de skate por ID y valida token
     @Operation(
         summary = "Buscar producto por ID", 
-        description = "Busca un producto específico de StreetDeck mediante su identificador único y valida el token de autorización[cite: 6]."
+        description = "Busca un producto específico de StreetDeck mediante su identificador único y valida el token de autorización."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Producto encontrado correctamente[cite: 6]"),
-        @ApiResponse(responseCode = "404", description = "Producto no encontrado[cite: 6]")
+        @ApiResponse(responseCode = "200", description = "Producto encontrado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
     @GetMapping("/{id}")
     public Map<String, Object> obtenerProductoPorId(
@@ -68,7 +68,7 @@ public class ProductoController {
         description = "Permite dar de alta un nuevo artículo en la tienda validando el rol de administrador."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Producto registrado con éxito[cite: 6]"),
+        @ApiResponse(responseCode = "200", description = "Producto registrado con éxito."),
         @ApiResponse(responseCode = "400", description = "Datos de entrada incorrectos")
     })
     @PostMapping
@@ -100,6 +100,6 @@ public class ProductoController {
         respuesta.put("mensaje", "Producto eliminado correctamente de StreetDeck");
         respuesta.put("idEliminado", id);
         
-        return ResponseEntity.ok(respuesta);
+        return respuesta;
     }
 }

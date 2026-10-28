@@ -3,6 +3,7 @@ package com.streetdeck.controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -11,9 +12,12 @@ public class ProductoController {
     // 1. GET con @RequestParam: Filtra por categoría de skate
     @GetMapping
     public Map<String, Object> listarProductos(@RequestParam("categoria") String categoria) {
+        List<String> categoriasFijas = List.of("tablas", "ruedas", "trucks", "rodamientos", "lijas");
+        
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Catálogo de StreetDeck obtenido correctamente");
         respuesta.put("categoriaFiltro", categoria);
+        respuesta.put("categoriasDisponibles", categoriasFijas);
         return respuesta;
     }
 

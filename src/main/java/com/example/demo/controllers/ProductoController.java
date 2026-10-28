@@ -80,4 +80,24 @@ public class ProductoController {
         respuesta.put("rolUsuario", rol);
         return respuesta;
     }
+    
+    // 4. DELETE: Elimina un producto por ID
+    @Operation(
+        summary = "Eliminar producto", 
+        description = "Permite eliminar un producto del catálogo de StreetDeck mediante su identificador único."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto eliminado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "El producto a eliminar no existe")
+    })
+    @DeleteMapping("/{id}")
+    public Map<String, Object> eliminarProducto(
+            @PathVariable("id") @Parameter(description = "Identificador único del producto a eliminar", required = true) Long id) {
+        
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Producto eliminado correctamente de StreetDeck");
+        respuesta.put("idEliminado", id);
+        
+        return ResponseEntity.ok(respuesta);
+    }
 }

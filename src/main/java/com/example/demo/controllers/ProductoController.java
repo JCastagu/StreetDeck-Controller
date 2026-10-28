@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 @RestController
 @RequestMapping("/api/productos")
@@ -80,7 +82,7 @@ public class ProductoController {
         respuesta.put("rolUsuario", rol);
         return respuesta;
     }
-    
+
     // 4. DELETE: Elimina un producto por ID
     @Operation(
         summary = "Eliminar producto", 

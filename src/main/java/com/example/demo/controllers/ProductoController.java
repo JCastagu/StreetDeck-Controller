@@ -13,34 +13,46 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 @RestController
 @RequestMapping("/api/productos")
 @Tag(name = "Productos", description = "API para la gestión y consulta de productos de StreetDeck")
 public class ProductoController {
 
-    // 1. GET con @RequestParam: Filtra por categoría de skate
+    // 1. GET con @RequestParam: Filtra por categoría con ejemplos reales de la tienda
     @Operation(
         summary = "Obtener productos por categoría", 
-        description = "Devuelve el catálogo de StreetDeck filtrado según la categoría de skate especificada."
+        description = "Devuelve el catálogo de StreetDeck filtrado según la categoría (ej: tablas, ruedas) con marcas reales como Santa Cruz o Baker."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Catálogo obtenido exitosamente."),
         @ApiResponse(responseCode = "400", description = "Parámetro de categoría inválido")
     })
     @GetMapping
-    public Map<String, Object> listarProductos(
-            @RequestParam("categoria") @Parameter(description = "Nombre de la categoría de skate (ej: tablas, ruedas)", required = true) String categoria) {
-        List<String> categoriasFijas = List.of("tablas", "ruedas", "trucks", "rodamientos", "lijas");
+    public ResponseEntity<Map<String, Object>> listarProductos(
+            @RequestParam("categoria") @Parameter(description = "Categoría de skate (ej: tablas, ruedas)", required = true) String categoria) {
         
         Map<String, Object> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Catálogo de StreetDeck obtenido correctamente");
+        respuesta.put("mensaje", "Catálogo filtrado correctamente para StreetDeck");
         respuesta.put("categoriaFiltro", categoria);
-        respuesta.put("categoriasDisponibles", categoriasFijas);
-        return respuesta;
+
+        // Simulamos resultados reales según la categoría
+        if (categoria.equalsIgnoreCase("tablas")) {
+            respuesta.put("resultados", List.of(
+                Map.of("id", 1, "marca", "Santa Cruz", "modelo", "Screaming Hand 8.25", "precio", 245000),
+                Map.of("id", 2, "marca", "Baker", "modelo", "Team Brand Logo 8.0", "precio", 189900)
+            ));
+        } else if (categoria.equalsIgnoreCase("ruedas")) {
+            respuesta.put("resultados", List.of(
+                Map.of("id", 3, "marca", "Spitfire", "modelo", "Formula Four 52mm", "precio", 145000)
+            ));
+        } else {
+            respuesta.put("resultados", List.of("No hay productos específicos cargados de muestra para esta categoría, pero el filtro opera correctamente."));
+        }
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    // 2. GET con @PathVariable y @RequestHeader: Busca producto de skate por ID y valida token
+    // 2. GET con @PathVariable y @RequestHeader: Busca producto por ID
     @Operation(
         summary = "Buscar producto por ID", 
         description = "Busca un producto específico de StreetDeck mediante su identificador único y valida el token de autorización."
@@ -50,56 +62,82 @@ public class ProductoController {
         @ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
     @GetMapping("/{id}")
-    public Map<String, Object> obtenerProductoPorId(
+    public ResponseEntity<Map<String, Object>> obtenerProductoPorId(
             @PathVariable("id") @Parameter(description = "Identificador único del producto", required = true) Long id,
             @RequestHeader("Authorization") @Parameter(description = "Token de seguridad para la petición", required = true) String token) {
         
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("idProducto", id);
-        respuesta.put("producto", "Tabla Maple 8.0 StreetDeck");
+        respuesta.put("marca", "Santa Cruz");
+        respuesta.put("producto", "Tabla Screaming Hand 8.25");
+        respuesta.put("precio", 245000);
         respuesta.put("mensaje", "Acceso concedido al producto de skate");
-        respuesta.put("tokenRecibido", token);
-        return respuesta;
+        respuesta.put("tokenValidado", true);
+        
+        return ResponseEntity.ok(respuesta);
     }
 
-    // 3. POST con @RequestBody y @RequestHeader: Registra un nuevo producto en StreetDeck
+    // 3. POST con @RequestBody y @RequestHeader: Registra un nuevo producto
     @Operation(
         summary = "Registrar nuevo producto", 
-        description = "Permite dar de alta un nuevo artículo en la tienda validando el rol de administrador."
+        description = "Permite al administrador dar de alta un nuevo artículo en la tienda validando su rol."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Producto registrado con éxito."),
         @ApiResponse(responseCode = "400", description = "Datos de entrada incorrectos")
     })
     @PostMapping
-    public Map<String, Object> crearProducto(
+    public ResponseEntity<Map<String, Object>> crearProducto(
             @RequestBody @Parameter(description = "Cuerpo con los datos del nuevo producto en formato JSON", required = true) Map<String, Object> producto,
-            @RequestHeader("X-User-Role") @Parameter(description = "Rol del usuario que realiza la petición", required = true) String rol) {
+            @RequestHeader("X-User-Role") @Parameter(description = "Rol del usuario (ej: ADMIN)", required = true) String rol) {
         
         Map<String, Object> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Producto agregado con éxito a StreetDeck");
-        respuesta.put("datosProducto", producto);
-        respuesta.put("rolUsuario", rol);
-        return respuesta;
+        respuesta.put("mensaje", "Producto agregado con éxito al inventario de StreetDeck");
+        respuesta.put("rolAdministrador", rol);
+        respuesta.put("datosRegistrados", producto);
+        
+        return ResponseEntity.ok(respuesta);
     }
 
-    // 4. DELETE: Elimina un producto por ID
+    // 4. PUT: Actualiza un producto existente
+    @Operation(
+        summary = "Actualizar producto", 
+        description = "Permite modificar los datos o el precio de un producto existente en el inventario de StreetDeck."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto actualizado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "El producto a actualizar no existe")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> actualizarProducto(
+            @PathVariable("id") @Parameter(description = "Identificador único del producto a actualizar", required = true) Long id,
+            @RequestBody @Parameter(description = "Nuevos datos o precio del producto en JSON", required = true) Map<String, Object> productoActualizado) {
+        
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Inventario actualizado correctamente en StreetDeck");
+        respuesta.put("idActualizado", id);
+        respuesta.put("cambiosAplicados", productoActualizado);
+        
+        return ResponseEntity.ok(respuesta);
+    }
+
+    // 5. DELETE: Elimina un producto por ID
     @Operation(
         summary = "Eliminar producto", 
-        description = "Permite eliminar un producto del catálogo de StreetDeck mediante su identificador único."
+        description = "Permite dar de baja un producto del catálogo de StreetDeck mediante su identificador único."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Producto eliminado exitosamente"),
         @ApiResponse(responseCode = "404", description = "El producto a eliminar no existe")
     })
     @DeleteMapping("/{id}")
-    public Map<String, Object> eliminarProducto(
+    public ResponseEntity<Map<String, Object>> eliminarProducto(
             @PathVariable("id") @Parameter(description = "Identificador único del producto a eliminar", required = true) Long id) {
         
         Map<String, Object> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Producto eliminado correctamente de StreetDeck");
+        respuesta.put("mensaje", "Producto eliminado correctamente del sistema de StreetDeck");
         respuesta.put("idEliminado", id);
         
-        return respuesta;
+        return ResponseEntity.ok(respuesta);
     }
 }

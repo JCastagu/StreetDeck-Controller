@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Productos", description = "API para la gestión y consulta de productos de StreetDeck")
 public class ProductoController {
 
-    // 1. GET con @RequestParam: Filtra por categoría con ejemplos reales de la tienda
+    // 1. GET: Filtra por categoría con ejemplos reales
     @Operation(
         summary = "Obtener productos por categoría", 
         description = "Devuelve el catálogo de StreetDeck filtrado según la categoría (ej: tablas, ruedas) con marcas reales como Santa Cruz o Baker."
@@ -35,7 +35,6 @@ public class ProductoController {
         respuesta.put("mensaje", "Catálogo filtrado correctamente para StreetDeck");
         respuesta.put("categoriaFiltro", categoria);
 
-        // Simulamos resultados reales según la categoría
         if (categoria.equalsIgnoreCase("tablas")) {
             respuesta.put("resultados", List.of(
                 Map.of("id", 1, "marca", "Santa Cruz", "modelo", "Screaming Hand 8.25", "precio", 245000),
@@ -52,10 +51,10 @@ public class ProductoController {
         return ResponseEntity.ok(respuesta);
     }
 
-    // 2. GET con @PathVariable y @RequestHeader: Busca producto por ID
+    // 2. GET: Busca producto por ID 
     @Operation(
         summary = "Buscar producto por ID", 
-        description = "Busca un producto específico de StreetDeck mediante su identificador único y valida el token de autorización."
+        description = "Busca un producto específico de StreetDeck mediante su identificador único."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Producto encontrado correctamente."),
@@ -63,24 +62,22 @@ public class ProductoController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> obtenerProductoPorId(
-            @PathVariable("id") @Parameter(description = "Identificador único del producto", required = true) Long id,
-            @RequestHeader("Authorization") @Parameter(description = "Token de seguridad para la petición", required = true) String token) {
+            @PathVariable("id") @Parameter(description = "Identificador único del producto", required = true) Long id) {
         
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("idProducto", id);
         respuesta.put("marca", "Santa Cruz");
         respuesta.put("producto", "Tabla Screaming Hand 8.25");
         respuesta.put("precio", 245000);
-        respuesta.put("mensaje", "Acceso concedido al producto de skate");
-        respuesta.put("tokenValidado", true);
+        respuesta.put("mensaje", "Producto obtenido correctamente de StreetDeck");
         
         return ResponseEntity.ok(respuesta);
     }
 
-    // 3. POST con @RequestBody y @RequestHeader: Registra un nuevo producto
+    // 3. POST: Registra un nuevo producto
     @Operation(
         summary = "Registrar nuevo producto", 
-        description = "Permite al administrador dar de alta un nuevo artículo en la tienda validando su rol."
+        description = "Permite dar de alta un nuevo artículo en la tienda."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Producto registrado con éxito."),
@@ -88,12 +85,10 @@ public class ProductoController {
     })
     @PostMapping
     public ResponseEntity<Map<String, Object>> crearProducto(
-            @RequestBody @Parameter(description = "Cuerpo con los datos del nuevo producto en formato JSON", required = true) Map<String, Object> producto,
-            @RequestHeader("X-User-Role") @Parameter(description = "Rol del usuario (ej: ADMIN)", required = true) String rol) {
+            @RequestBody @Parameter(description = "Cuerpo con los datos del nuevo producto en formato JSON", required = true) Map<String, Object> producto) {
         
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Producto agregado con éxito al inventario de StreetDeck");
-        respuesta.put("rolAdministrador", rol);
         respuesta.put("datosRegistrados", producto);
         
         return ResponseEntity.ok(respuesta);
